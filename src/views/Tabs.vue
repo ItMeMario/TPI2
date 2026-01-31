@@ -14,8 +14,8 @@
         </ion-tab-button>
         
         <ion-tab-button tab="tab3" href="/tabs/tab3">
-          <ion-icon :icon="square" />
-          <ion-label>Tab 3</ion-label>
+          <ion-icon :icon="medkit" />
+          <ion-label>Saúde</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
-import {images, square, triangle, person } from 'ionicons/icons';
+import { images, square, triangle, person, medkit } from 'ionicons/icons';
 
 export default {
   name: 'Tabs',
@@ -34,7 +34,8 @@ export default {
     images, 
       square, 
       triangle,
-      person
+      person,
+      medkit
     }
   }
 }
