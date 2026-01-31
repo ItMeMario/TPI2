@@ -2,7 +2,7 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Cadastro de cãe</ion-title>
+        <ion-title>Cadastro de Cães</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true">
@@ -21,21 +21,21 @@
               class="btn"
               expand="block"
               color="success"
-              @click="saveDog(dog)"
+              @click="saveDog()"
               >Salvar</ion-button
             >
           </ion-col>
         </div>
       </div>
     </ion-content>
-    <ion-item v-for="(dogsApp, index) in dogs" :key="index">
+    <ion-item v-for="(dogItem, index) in dogs" :key="index">
       <ion-card>
         <ion-card-header>
-          <ion-card-title> Nome do Dog: {{ dogsApp.nome }}</ion-card-title>
-          <ion-card-subtitle>Idade: {{ dogsApp.idade }} anos</ion-card-subtitle>
+          <ion-card-title> Nome do Dog: {{ dogItem.nome }}</ion-card-title>
+          <ion-card-subtitle>Idade: {{ dogItem.idade }} anos</ion-card-subtitle>
         </ion-card-header>
-        <ion-button color="danger" @click="removeDog(dog)">Deletar</ion-button>
-        <ion-button color="danger" @click="editDog(dog)">Editar</ion-button>
+        <ion-button color="danger" @click="removeDog(dogItem)">Deletar</ion-button>
+        <ion-button color="primary" @click="editDog(dogItem)">Editar</ion-button>
       </ion-card>
     </ion-item>
   </ion-page>
@@ -88,46 +88,51 @@ export default defineComponent({
     };
   },
   created() {
-    this.dogs = JSON.parse(localStorage.getItem("dogsApp"));
+    this.loadDogs();
   },
   methods: {
-    saveDog(dog) {
-      let dogs = localStorage.getItem("dogsApp");
-
-      dog.id = new Date().getTime();
-
+    loadDogs() {
+      const dogs = localStorage.getItem("dogsApp");
       if (dogs) {
-        dogs = JSON.parse(dogs);
-        dogs.push(dog);
-      } else {
-        dogs = [dog];
+        this.dogs = JSON.parse(dogs);
+      }
+    },
+    saveDog() { // Removed argument, uses this.dog
+      const dogToSave = { ...this.dog }; // Clone to avoid binding issues
+
+      if (!dogToSave.nome || !dogToSave.idade) {
+        // Basic validation could go here
+        return; 
       }
 
-      this.dogs = dogs;
+      const allDogs = this.dogs;
 
-      // o atualizar local storage independemente de novo contato ou nova adição
-      localStorage.setItem("dogsApp", JSON.stringify(dogs));
+      if (dogToSave.id) {
+        // Edit existing
+        const index = allDogs.findIndex(d => d.id === dogToSave.id);
+        if (index > -1) {
+          allDogs[index] = dogToSave;
+        }
+      } else {
+        // New dog
+        dogToSave.id = new Date().getTime();
+        allDogs.push(dogToSave);
+      }
 
-      location.reload();
+      this.dogs = allDogs;
+      localStorage.setItem("dogsApp", JSON.stringify(allDogs));
+
+      // Reset form
+      this.dog = { id: "", nome: "", idade: "" };
     },
-    removeDog(dogId) {
-      let dogs = localStorage.getItem("dogsApp");
-      
-      if (!dogs) return;
+    removeDog(dogToRemove) {
+      if (!confirm(`Deseja deletar ${dogToRemove.nome}?`)) return;
 
-      dogs = JSON.parse(dogs);
-
-      dogs = dogs.filter((dog) => {
-        return dog.id != dogId;
-      });
-
-      this.dogs = dogs;
-
-      localStorage.setItem("dogsApp", JSON.stringify(dogs));
+      this.dogs = this.dogs.filter((d) => d.id !== dogToRemove.id);
+      localStorage.setItem("dogsApp", JSON.stringify(this.dogs));
     },
-    editDog(dog) {
-      this.dog = dog;
-      this.isEdit = true;
+    editDog(dogToEdit) {
+      this.dog = { ...dogToEdit }; // Copy to form
     },
   },
 });
